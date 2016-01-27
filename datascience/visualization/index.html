@@ -76,9 +76,11 @@ var slides = [
 	"slides/why_trust.html",
 	"slides/why_impression.html",
 	"slides/how.html",
+	"slides/how_bgg.html",
 	"slides/how_data.html",
 	"slides/how_basic.html",
-	"slides/how_advanced.html"
+	"slides/how_advanced.html",
+	"slides/how_graph.html"
 ];
 
 var previous = d3.select("#previous"),
@@ -159,9 +161,9 @@ function step(delta) {
 		nextIndex = currentIndex >= slides.length - 1 ? 0 : currentIndex + 1;
 		previousIndex = currentIndex <= 0 ? slides.length - 1 : currentIndex - 1;
 	}
-	previous.transition().delay(750).attr("src", slides[previousIndex]);
-	current.transition().delay(250).attr("src", slides[currentIndex]);
-	next.transition().delay(750).attr("src", slides[nextIndex]);
+	previous.transition().delay(750).attr("src", slides[previousIndex] + query);
+	current.transition().delay(250).attr("src", slides[currentIndex] + query);
+	next.transition().delay(750).attr("src", slides[nextIndex] + query);
 	location.hash = currentIndex;
 }
 

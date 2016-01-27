@@ -4,6 +4,7 @@
 		<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 		<title>Visualizing Data</title>
 		<link rel="stylesheet" href="../lib/bootstrap/dist/css/bootstrap.min.css">
+		<link rel="stylesheet" href="../lib/highlightjs/styles/default.css">
 
 		<style type="text/css">
 
@@ -39,25 +40,34 @@
 						</div>
 					</div>
 
-					<pre>
+					<pre><code class="javascript">
+var xScale = d3.scale.linear()
+	.range([0, 400]);
 
 function draw() {
+
+	// Update the xScale
+	xScale.domain([0, d3.max(data, valueFn)]);
+
 	// Data Join
 	var div = d3.select('#container').selectAll('div.bar')
-		.data(data);
-	var xScale = d3.scale.linear()
-		.domain([0, d3.max(data, function(d) { return d.wins; })])
-		.range([0, 400]);
+		.data(data, function(d) { return d.name; });
 
 	// Enter
 	var divEnter = div.enter().append('div')
 		.attr('class', 'bar')
-		.style('width', function(d) { return xScale(d.wins) + 'px'; })
-		.text(function(d) { return d.name + ' - ' + d.wins; });
+		.style('width', 0)
+		.style('opacity', 1);
+
+	// Enter + Update
+	div.transition().duration(500)
+		.style('width', function(d) {
+			return xScale(valueFn(d)) + 'px';
+		})
+		.text(function(d) { return d.name + ' - ' + textFn(d); });
+
 }
-
-
-					</pre>
+					</code></pre>
 					<button onclick="byWins(); draw();" class="btn btn-default">Draw Wins</button>
 					<button onclick="byPlays(); draw();" class="btn btn-default">Draw Plays</button>
 					<button onclick="byRatio(); draw();" class="btn btn-default">Draw Wins/Plays</button>
@@ -139,5 +149,8 @@ function draw() {
 			textFn = function(d) { return valueFn(d) + '%' };
 		}
 		</script>
+
+		<script src="../lib/highlightjs/highlight.pack.js"></script>
+		<script>hljs.initHighlightingOnLoad();</script>
 	</body>
 </html>

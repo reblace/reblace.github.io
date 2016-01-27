@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+		<title>Visualizing Data</title>
+		<link rel="stylesheet" href="../lib/bootstrap/dist/css/bootstrap.min.css">
+		<link rel="stylesheet" href="../lib/highlightjs/styles/default.css">
+
+		<style type="text/css">
+
+			h1 {
+				font-size: 55px;
+				margin-bottom: 40px;
+			}
+
+			.bar {
+				overflow: visible;
+				white-space: nowrap;
+				background-color: #ddd;
+				font: 12px sans-serif;
+				color: #444;
+				margin: 2px;
+				padding: 2px 4px;
+			}
+			.bar:hover {
+				background-color: lightsteelblue;
+			}
+		</style>
+
+	</head>
+	<body>
+
+		<div class="container">
+			<div class="row" style="margin-top:40px;">
+
+				<div class="col-md-12">
+					<div class="row">
+						<div class="col-md-12">
+							<h1>GRAPHS!</h1>
+						</div>
+						<button onclick="draw()" class="btn btn-default">Draw</button>
+						<div id="container"><svg></svg></div>
+						<div>Node: <span id="label"></span></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Will populate "plays" global object -->
+		<script src="../src/data/plays.js"></script>
+		<script src="../lib/d3/d3.js"></script>
+		<script>
+
+		// Aggregate the unique players and win counts from all plays
+		var nodeMap = plays.plays.play.reduce(function(p, c) {
+			// Loop over all the players for the current game and put them into the map
+			c.players.player.forEach(function(d) {
+				if(null != p[d['-name']]) {
+					p[d['-name']].wins = p[d['-name']].wins + Number(d['-win']);
+					p[d['-name']].plays = p[d['-name']].plays + 1;
+				}
+				else {
+					p[d['-name']] = {
+						wins: Number(d['-win']),
+						plays: 1,
+						name: d['-name']
+					};
+				}
+			});
+
+			return p;
+		}, {});
+
+		var linkMap = plays.plays.play.reduce(function(p, c) {
+			// Loop over all the players for the current game and put the pair into the map
+			for(var i=0; i<c.players.player.length; i++) {
+				for(var j=0; j<c.players.player.length; j++) {
+					if(i !== j && i < j) {
+						var k = c.players.player[i]['-name'] + c.players.player[j]['-name'];
+						if(null != p[k]) {
+							p[k].plays = p[k].plays + 1;
+						}
+						else {
+							p[k] = {
+								plays: 1,
+								source: c.players.player[i]['-name'],
+								target: c.players.player[j]['-name']
+							};
+						}
+					}
+				}
+			}
+			return p;
+		}, {});
+
+		var nodes = [];
+		var links = [];
+		for(var k in nodeMap) {
+			var n = nodeMap[k];
+			n.cx =  Math.floor(Math.random()*400);
+			n.cy = Math.floor(Math.random()*400);
+			nodes.push(nodeMap[k]);
+		}
+		for(var k in linkMap) {
+			links.push(linkMap[k]);
+		}
+
+		function draw() {
+
+			var height = 500;
+			var width = 800;
+			var color = d3.scale.category10();
+			var colorScale = d3.scale.linear().domain([0,width]).range([0,10]);
+
+			var force = d3.layout.force()
+				.nodes(nodes)
+				.charge(-30)
+				.friction(0.9)
+				.gravity(0.1)
+				.size([width, height])
+				.on("tick", function(e){ 
+					node.attr("cx", function(d) { return d.x + (d.x - d.cx); });
+					node.attr("cy", function(d) { return d.y; });
+				})
+				.start();
+
+			// Create the initial structure of the game board (using SVG rectangles)
+			var svg = d3.select("#container").select("svg")
+				.attr("height", height)
+				.attr("width", width);
+
+			var node = svg.selectAll(".node")
+				.data(nodes)
+				.enter().append("circle")
+					.attr("class", "node")
+					.attr("cx", function(d) { return d.x; })
+					.attr("cy", function(d) { return d.y; })
+					.attr("r", function(d) { return d.plays * 0.5; })
+					.attr("fill", function(d) { return color(Math.floor(colorScale(d.name))); })
+					.on('mouseover', function(d) { d3.select('#label').text(d.name); } );
+		}
+
+		</script>
+
+		<script src="../lib/highlightjs/highlight.pack.js"></script>
+		<script>hljs.initHighlightingOnLoad();</script>
+	</body>
+</html>
