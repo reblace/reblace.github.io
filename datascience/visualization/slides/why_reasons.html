@@ -10,7 +10,7 @@
 			h1 {
 				font-size: 55px;
 				margin-top: 60px;
-				margin-bottom: 80px;
+				margin-bottom: 100px;
 			}
 
 			.bar {
@@ -23,8 +23,7 @@
 				padding: 8px 12px;
 			}
 			.bar:hover {
-				background-color: steelblue;
-				color: #eee;
+				background-color: lightsteelblue;
 			}
 		</style>
 
@@ -45,36 +44,29 @@
 				</div>
 			</div>
 
-<!-- 
-			<div class="row" style="margin-top:60px;">
-				<div class="col-md-8 col-md-offset-2">
-					<pre>
-
-	var reasons = [ 'To Explain', 'To Develop Trust', 'To Leave an Impression' ];
-	var bars = d3.select('#content').selectAll('div').data(reasons);
-	bars.enter().append('div')
-		.attr('class', 'bar')
-		.style('width', 0)
-		.text(function(d) { return d; })
-		.transition().delay(function(d, i) { return i*1000; }).duration(1000)
-			.style('width', function(d) { return d.length * 20 + 'px' });
-					</pre>
-				</div>
-			</div>
--->
-
 		</div>
 
 		<script src="../lib/d3/d3.min.js"></script>
 		<script>
 			var reasons = [ 'To Explain', 'To Develop Trust', 'To Leave an Impression' ];
-			var bars = d3.select('#content').selectAll('div').data(reasons);
-			bars.enter().append('div')
-				.attr('class', 'bar')
-				.style('width', 0)
-				.text(function(d) { return d; })
-				.transition().delay(function(d, i) { return i*1000; }).duration(1000)
-					.style('width', function(d) { return d.length * 20 + 'px' });
+
+			function redraw() {
+				var bars = d3.select('#content').selectAll('div').data(reasons);
+
+				bars.enter().append('div')
+					.attr('class', 'bar')
+					.style('width', 0)
+					.text(function(d) { return d; });
+
+				bars.transition()
+					.delay(function(d, i) { return i*500; })
+					.duration(1000)
+						.style('width', function(d) { return Math.random() * (d.length * 20) + 'px' });
+
+				setTimeout(redraw, 1500);
+			}
+
+			redraw();
 
 		</script>
 	</body>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+		<title>Visualizing Data</title>
+		<link rel="stylesheet" href="../lib/bootstrap/dist/css/bootstrap.min.css">
+
+		<style type="text/css">
+
+			h1 {
+				font-size: 55px;
+				margin-top: 60px;
+				margin-bottom: 100px;
+			}
+
+			.bar {
+				overflow: visible;
+				white-space: nowrap;
+				background-color: #ddd;
+				font: 34px sans-serif;
+				color: #444;
+				margin: 16px;
+				padding: 8px 12px;
+			}
+			.bar:hover {
+				background-color: lightsteelblue;
+			}
+		</style>
+
+	</head>
+	<body>
+
+		<div class="container">
+			<div class="row" style="margin-top:60px;">
+
+				<div class="col-md-6">
+					<pre>
+
+var plays = {
+	...
+	"play": [
+	{
+		"-id": "16980939",
+		"-date": "2015-12-27",
+		...
+		"item": {
+			"-name": "Coloretto",
+			"-objecttype": "thing",
+			"-objectid": "5782",
+			"subtypes": {
+				"subtype": { "-value": "boardgame" }
+			}
+		},
+		"players": {
+			"player": [
+			{
+				"-username": "SirMayland",
+				"-userid": "855099",
+				"-name": "Justin",
+				"-score": "41",
+				"-win": "0",
+				...
+			},
+			...
+			]
+		}
+	},
+	...
+};
+
+					</pre>
+				</div>
+
+				<div class="col-md-6">
+					<h1>THE DATA!</h1>
+				</div>
+			</div>
+		</div>
+
+	</body>
+</html>

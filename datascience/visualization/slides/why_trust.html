@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+		<title>Visualizing Data</title>
+		<link rel="stylesheet" href="../lib/bootstrap/dist/css/bootstrap.min.css">
+
+		<style type="text/css">
+			html, body {
+				height: 100%;,
+				background-color: #ccc;
+			}
+
+			h1.footer {
+				color: #777;
+				font-size: 34px;
+			}
+
+			.tile {
+				margin-top: 100px;
+				text-align: center;
+			}
+
+			.tile img {
+				max-height: 500px;
+				max-width: 400px;
+			}
+
+			.tile .title {
+				text-align: center;
+				font: 12px sans-serif;
+				color: #888;
+			}
+		</style>
+
+	</head>
+	<body>
+
+		<div class="container">
+			<div id="content" class="row">
+			</div>
+		</div>
+
+		<!-- Footer Text -->
+		<h1 class="footer" style="float:left; left: 21px; bottom: 13px; position: absolute;">To develop trust...</h1>
+
+		<!-- Footer Image -->
+		<img style="width: 233px; right: 21px; bottom: 13px; position: absolute;" src="../src/img/logo_full_dark.png"/>
+
+		<script src="../lib/d3/d3.min.js"></script>
+		<script>
+			var tiles = [ {
+			                  title: 'Is it better to Rent or Buy? - The Upshot',
+			                  url: 'http://www.nytimes.com/interactive/2014/upshot/buy-rent-calculator.html?_r=0',
+			                  img: '../src/img/rent_or_buy.png'
+			              }, {
+			                  title: 'Crossfilter - Square',
+			                  url: 'http://square.github.io/crossfilter/',
+			                  img: '../src/img/crossfilter.png'
+			              }
+			            ];
+
+			var tiles = d3.select('#content').selectAll('div').data(tiles);
+
+			var tileContainer = tiles.enter().append('div')
+				.attr('class', 'col-md-6 tile')
+				.style('opacity', 0);
+
+			tileContainer.transition().duration(1000).style('opacity', 1);
+			tileContainer.append('a')
+				.attr('href', function(d) { return d.url; })
+				.attr('target', '_blank')
+				.append('img')
+					.attr('src', function(d) { return d.img; });
+			tileContainer.append('div')
+				.attr('class', 'title')
+				.text(function(d) { return d.title; });
+
+		</script>
+
+	</body>
+</html>

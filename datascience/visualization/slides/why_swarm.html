@@ -16,6 +16,11 @@
 				color: #bbb;
 			}
 
+			h1.footer {
+				color: #777;
+				font-size: 34px;
+			}
+
 			.page-container {
 				height: 100%;
 				width: 100%;
@@ -33,6 +38,7 @@
 
 			#fps {
 				position: absolute;
+				color: #777;
 				top: 10px;
 				left: 10px;
 			}
@@ -47,18 +53,21 @@
 
 	</head>
 	<body>
-		<div id="fps">fps <span>?</span></div>
+		<div id="fps">fps: <span></span></div>
 
 		<div class="page-container">
 			<div class="title-pane">
 
 				<div style="text-align:center;">
 					<canvas></canvas>
-					<button id="button" class="btn btn-default" onclick="toggle()">Start/Stop</button>
+					<button id="button" class="btn btn-link" onclick="toggle()">Start/Stop</button>
 				</div>
 	
 			</div>
 		</div>
+
+		<!-- Footer Text -->
+		<h1 class="footer" style="float:left; left: 21px; bottom: 13px; position: absolute;">Cause it's cool?</h1>
 
 		<script src="../lib/d3/d3.min.js"></script>
 		<script>

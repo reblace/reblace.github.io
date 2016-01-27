@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+		<title>Visualizing Data</title>
+		<link rel="stylesheet" href="../lib/bootstrap/dist/css/bootstrap.min.css">
+
+		<style type="text/css">
+
+			h1 {
+				font-size: 55px;
+				margin-bottom: 40px;
+			}
+
+			.bar {
+				overflow: visible;
+				white-space: nowrap;
+				background-color: #ddd;
+				font: 12px sans-serif;
+				color: #444;
+				margin: 2px;
+				padding: 2px 4px;
+			}
+			.bar:hover {
+				background-color: lightsteelblue;
+			}
+		</style>
+
+	</head>
+	<body>
+
+		<div class="container">
+			<div class="row" style="margin-top:40px;">
+
+				<div class="col-md-7">
+					<div class="row">
+						<div class="col-md-12">
+							<h1>THE CODES!</h1>
+						</div>
+					</div>
+
+					<pre>
+
+function draw() {
+	// Data Join
+	var div = d3.select('#container').selectAll('div.bar')
+		.data(data);
+	var xScale = d3.scale.linear()
+		.domain([0, d3.max(data, function(d) { return d.wins; })])
+		.range([0, 400]);
+
+	// Enter
+	var divEnter = div.enter().append('div')
+		.attr('class', 'bar')
+		.style('width', function(d) { return xScale(d.wins) + 'px'; })
+		.text(function(d) { return d.name + ' - ' + d.wins; });
+}
+
+					</pre>
+					<button onclick="draw()" class="btn btn-default">Draw</button>
+				</div>
+
+				<div class="col-md-5">
+					<div id="container"></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Will populate "plays" global object -->
+		<script src="../src/data/plays.js"></script>
+		<script src="../lib/d3/d3.min.js"></script>
+		<script>
+
+		// Aggregate the unique players and win counts from all plays
+		var dataMap = plays.plays.play.reduce(function(p, c) {
+			// Loop over all the players for the current game and put them into the map
+			c.players.player.forEach(function(d) {
+				if(null != p[d['-name']]) {
+					p[d['-name']].wins = p[d['-name']].wins + Number(d['-win']);
+				}
+				else {
+					p[d['-name']] = {
+						wins: Number(d['-win']),
+						name: d['-name']
+					};
+				}
+			});
+
+			return p;
+		}, {});
+
+		var data = [];
+		for(var k in dataMap) {
+			data.push(dataMap[k]);
+		}
+
+		function draw() {
+
+			// Data Join
+			var div = d3.select('#container').selectAll('div.bar')
+				.data(data);
+			var xScale = d3.scale.linear()
+				.domain([0, d3.max(data, function(d) { return d.wins; })])
+				.range([0, 400]);
+	
+			// Enter
+			var divEnter = div.enter().append('div')
+				.attr('class', 'bar')
+				.style('width', function(d) { return xScale(d.wins) + 'px'; })
+				.text(function(d) { return d.name + ' - ' + d.wins; });
+		}
+
+		</script>
+	</body>
+</html>

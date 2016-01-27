@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+		<title>Visualizing Data</title>
+		<link rel="stylesheet" href="../lib/bootstrap/dist/css/bootstrap.min.css">
+
+		<style type="text/css">
+
+			h1 {
+				font-size: 55px;
+				margin-bottom: 40px;
+			}
+
+			.bar {
+				overflow: visible;
+				white-space: nowrap;
+				background-color: #ddd;
+				font: 12px sans-serif;
+				color: #444;
+				margin: 2px;
+				padding: 2px 4px;
+			}
+			.bar:hover {
+				background-color: lightsteelblue;
+			}
+		</style>
+
+	</head>
+	<body>
+
+		<div class="container">
+			<div class="row" style="margin-top:40px;">
+
+				<div class="col-md-7">
+					<div class="row">
+						<div class="col-md-12">
+							<h1>MORE CODES!</h1>
+						</div>
+					</div>
+
+					<pre>
+
+function draw() {
+	// Data Join
+	var div = d3.select('#container').selectAll('div.bar')
+		.data(data);
+	var xScale = d3.scale.linear()
+		.domain([0, d3.max(data, function(d) { return d.wins; })])
+		.range([0, 400]);
+
+	// Enter
+	var divEnter = div.enter().append('div')
+		.attr('class', 'bar')
+		.style('width', function(d) { return xScale(d.wins) + 'px'; })
+		.text(function(d) { return d.name + ' - ' + d.wins; });
+}
+
+
+					</pre>
+					<button onclick="byWins(); draw();" class="btn btn-default">Draw Wins</button>
+					<button onclick="byPlays(); draw();" class="btn btn-default">Draw Plays</button>
+					<button onclick="byRatio(); draw();" class="btn btn-default">Draw Wins/Plays</button>
+				</div>
+
+				<div class="col-md-5">
+					<div id="container"></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Will populate "plays" global object -->
+		<script src="../src/data/plays.js"></script>
+		<script src="../lib/d3/d3.min.js"></script>
+		<script>
+
+		// Aggregate the unique players and win counts from all plays
+		var dataMap = plays.plays.play.reduce(function(p, c) {
+			// Loop over all the players for the current game and put them into the map
+			c.players.player.forEach(function(d) {
+				if(null != p[d['-name']]) {
+					p[d['-name']].wins = p[d['-name']].wins + Number(d['-win']);
+					p[d['-name']].plays = p[d['-name']].plays + 1;
+				}
+				else {
+					p[d['-name']] = {
+						wins: Number(d['-win']),
+						plays: 1,
+						name: d['-name']
+					};
+				}
+			});
+
+			return p;
+		}, {});
+
+		var data = [];
+		for(var k in dataMap) {
+			data.push(dataMap[k]);
+		}
+		var valueFn;
+		var textFn;
+
+		var xScale = d3.scale.linear()
+			.range([0, 400]);
+
+		function draw() {
+
+			// Update the xScale
+			xScale.domain([0, d3.max(data, valueFn)]);
+
+			// Data Join
+			var div = d3.select('#container').selectAll('div.bar')
+				.data(data, function(d) { return d.name; });
+
+			// Enter
+			var divEnter = div.enter().append('div')
+				.attr('class', 'bar')
+				.style('width', 0)
+				.style('opacity', 1);
+
+			// Enter + Update
+			div.transition().duration(500)
+				.style('width', function(d) { return xScale(valueFn(d)) + 'px'; })
+				.text(function(d) { return d.name + ' - ' + textFn(d); });
+
+		}
+
+		function byWins() {
+			valueFn = function(d) { return d.wins; };
+			textFn = function(d) { return valueFn(d) + ' wins' };
+		}
+		function byPlays() {
+			valueFn = function(d) { return d.plays; };
+			textFn = function(d) { return valueFn(d) + ' plays' };
+		}
+		function byRatio() {
+			valueFn = function(d) { return Math.round(100*(d.wins/d.plays)); };
+			textFn = function(d) { return valueFn(d) + '%' };
+		}
+		</script>
+	</body>
+</html>
