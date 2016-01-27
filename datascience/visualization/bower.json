@@ -1,0 +1,10 @@
+{
+	"name": "datascience.visualization",
+	"dependencies": {
+		"bootstrap": "3",
+		"d3": "3",
+		"font-awesome": "4",
+		"leaflet": "0.7",
+		"leaflet-d3": "0.3"
+	}
+}

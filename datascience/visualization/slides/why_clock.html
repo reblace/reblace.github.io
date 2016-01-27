@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- Derived from https://jsfiddle.net/reblace/47kRa/ -->
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+		<title>Why Visualize Data?</title>
+		<link rel="stylesheet" href="/datascience/visualization/lib/bootstrap/dist/css/bootstrap.min.css">
+
+		<style type="text/css">
+		html, body {
+			height: 100%;
+		}
+
+		.page-container {
+			height: 100%;
+			width: 100%;
+			display: table;
+		}
+
+		.title-pane {
+			display:table-cell;
+			vertical-align:middle;
+		}
+
+		body { 
+			background-color: #eee;
+			font: 12px sans-serif;
+		}
+
+		rect.digit {
+			stroke: #f5f5f5;
+			fill: #fefefe;
+		}
+
+		.axis path {
+			fill: none;
+			stroke: none;
+		}
+		.axis line {
+			fill: none;
+			stroke: #aaa;
+			shape-rendering: crispEdges;
+		}
+
+		line.connector {
+			opacity: 0.25;
+			stroke-width: 1;
+			stroke: black;
+			fill: none;
+		}
+
+		line.line {
+			opacity: 0.5;
+			stroke-width: 5;
+			stroke: #f33;
+			fill: none;
+		}
+		</style>
+	</head>
+	<body>
+
+		<div class="page-container">
+			<div class="title-pane">
+
+				<div style="text-align:center;">
+					<img style="width:350px; height:auto" src="../src/img/logo_stacked_dark.png"/>
+					<div id="main"></div>
+					<h1 id="time"></h1>
+				</div>
+
+			</div>
+		</div>
+
+		<script src="../lib/d3/d3.min.js"></script>
+		<script>
+
+		// Ranges for the digits in the clock
+		var clockRanges = [[0, 2], [0, 9], [0, 5], [0, 9], [0, 5], [0, 9]];
+
+		// How often to update the visualization
+		var epochTime = 500;
+
+		// Dimensions of the visualization
+		var margin = { top: 20, right: 10, bottom: 20, left: 10 };
+		var width = 400 - margin.right - margin.left, 
+			height = 300 - margin.top - margin.bottom;
+
+		// Convenience variables for subcomponents of the visualization
+		var sectionWidth = (width/6);
+		var rectMargin = 0.3 * sectionWidth;
+		var rectWidth = sectionWidth - (rectMargin*2);
+
+		// Store axes for each digit
+		var axes = [];
+		for(var i=0; i<clockRanges.length; i++){
+			var range = clockRanges[i];
+			var scale = d3.scale.linear().range([height, 0]).domain(range);
+			var axis = d3.svg.axis()
+				.scale(scale).orient("left")
+				.tickValues(d3.range(range[1] + 1))
+				.tickFormat(d3.format(".0f"))
+				.innerTickSize(-rectWidth)
+				.outerTickSize(rectMargin);
+			axes.push(axis);
+		}
+
+		// Build the base of the chart
+		var g = d3.select("#main").append("svg")
+			.attr("width", width + margin.left + margin.right)
+			.attr("height", height + margin.top + margin.bottom)
+			.append("g")
+				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+		// Add rects for the digits
+		var digit = g.selectAll("rect").data(clockRanges);
+		digit.enter()
+			.append("rect")
+			.attr("class", "digit")
+			.attr("x", function(d, i){ return sectionWidth*i + rectMargin; })
+			.attr("y", 0)
+			.attr("height", height)
+			.attr("width", rectWidth);
+
+		// Append the axes
+		axes.forEach(function(e, i){
+			g.append("g")
+			.attr("class", "y axis")
+			.attr("transform", "translate(" + (sectionWidth*i + rectMargin) + ",0)")
+			.call(e);
+		});
+
+		// Redraws the visualization, updating it with the new data
+		var redraw = function(data){
+			var lines = [
+				[data[0], data[1]],
+				[data[1], data[2]],
+				[data[2], data[3]],
+				[data[3], data[4]],
+				[data[4], data[5]]
+			];
+
+			// Building the connector lines
+			var connector = g.selectAll("line.connector").data(lines);
+
+			//Update
+			connector
+				.transition().duration(250)
+				.attr("x1", function(d, i){ return i*sectionWidth + rectWidth + rectMargin; })
+				.attr("y1", function(d, i){ return axes[i].scale()(d[0]); })
+				.attr("x2", function(d, i){ return (i+1)*sectionWidth + rectMargin; })
+				.attr("y2", function(d, i){ return axes[i+1].scale()(d[1]); });
+
+			//Enter
+			connector.enter()
+				.append("line")
+				.attr("class", "connector")
+				.attr("x1", function(d, i){ return i*sectionWidth + rectWidth + rectMargin; })
+				.attr("y1", 0)
+				.attr("x2", function(d, i){ return (i+1)*sectionWidth + rectMargin; })
+				.attr("y2", 0);
+
+			//Building the clock lines
+			var line = g.selectAll("line.line").data(data);
+
+			//Update
+			line
+				.transition().duration(250)
+				.attr("x1", function(d, i){ return i*sectionWidth + rectMargin; })
+				.attr("y1", function(d, i){ return axes[i].scale()(d); })
+				.attr("x2", function(d, i){ return i*sectionWidth + rectWidth + rectMargin; })
+				.attr("y2", function(d, i){ return axes[i].scale()(d); });
+
+			//Enter
+			line.enter()
+				.append("line")
+				.attr("class", "line")
+				.attr("x1", function(d, i){ return i*sectionWidth + rectMargin; })
+				.attr("y1", 0)
+				.attr("x2", function(d, i){ return i*sectionWidth + rectWidth + rectMargin; })
+				.attr("y2", 0);
+
+		};
+
+		// Creates an array of numbers out of the argument
+		var getDigits = function(num){
+			var digits = (""+num).split("");
+			if(digits.length < 2){
+				digits.unshift(0);
+			}
+			return digits;
+		};
+
+		// Executes an epoch of the visualization
+		var doEpoch = function(){
+			var time = new Date();
+			var hours = getDigits(time.getHours());
+			var minutes = getDigits(time.getMinutes());
+			var seconds = getDigits(time.getSeconds());
+
+			var clock = [
+				hours[0], hours[1], 
+				minutes[0], minutes[1], 
+				seconds[0], seconds[1]
+			];
+
+			redraw(clock);
+			d3.select("#time")
+				.transition().duration(0).delay(epochTime/4).text(time.toTimeString());
+			window.setTimeout(doEpoch, epochTime);
+		};
+
+		doEpoch();
+
+		</script>
+	</body>
+</html>

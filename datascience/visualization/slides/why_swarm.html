@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- Derived from http://bl.ocks.org/mbostock/2647922 -->
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+		<title>Why Visualize Data?</title>
+		<link rel="stylesheet" href="../lib/bootstrap/dist/css/bootstrap.min.css">
+
+		<style type="text/css">
+			html, body {
+				height: 100%;
+			}
+
+			body {
+				background-color: black;
+				color: #bbb;
+			}
+
+			.page-container {
+				height: 100%;
+				width: 100%;
+				display: table;
+			}
+
+			.title-pane {
+				display:table-cell;
+				vertical-align:middle;
+			}
+
+			canvas {
+				background-color: black;
+			}
+
+			#fps {
+				position: absolute;
+				top: 10px;
+				left: 10px;
+			}
+
+			#button {
+				position:absolute;
+				bottom:13px;
+				right:13px;
+			}
+
+		</style>
+
+	</head>
+	<body>
+		<div id="fps">fps <span>?</span></div>
+
+		<div class="page-container">
+			<div class="title-pane">
+
+				<div style="text-align:center;">
+					<canvas></canvas>
+					<button id="button" class="btn btn-default" onclick="toggle()">Start/Stop</button>
+				</div>
+	
+			</div>
+		</div>
+
+		<script src="../lib/d3/d3.min.js"></script>
+		<script>
+
+			// Get the image and when it's loaded, start the simulation
+			var image = new Image();
+			image.addEventListener('load', setup);
+			image.src = '../src/img/logo_stacked_white.png';
+
+			var width, height, angle;
+			var canvas, context;
+			var data, imageData;
+			var xScale, yScale;
+			var time0, time1, fps;
+			var stop = true;
+
+			function setup() {
+				width = image.width;
+				height = image.height;
+				angle = 2 * Math.PI;
+
+				canvas = d3.select('canvas')
+					.attr('width', width)
+					.attr('height', height);
+
+				// now we draw the image and then clear it to get the data
+				context = canvas.node().getContext('2d');
+				context.drawImage(image, 0, 0);
+
+				imageData = context.getImageData(0, 0, width, height).data;
+				context.clearRect(0, 0, width, height);
+
+				// Initialize the data
+				data = d3.range(987).map(function() {
+					return {x: 0, y: 0, dx: 0, dy: 0};
+				});
+
+				xScale = d3.scale.linear()
+					.domain([-5, 5])
+					.range([0, width]);
+
+				yScale = d3.scale.linear()
+					.domain([-5, 5])
+					.range([0, height]);
+
+				time0 = Date.now();
+
+				fps = d3.select('#fps span');
+
+				// reset the context
+				context.strokeStyle = '#666';
+				context.strokeWidth = 1;
+			}
+
+			function start() {
+				d3.timer(function() {
+					context.clearRect(0, 0, width, height);
+
+					data.forEach(function(d) {
+						d.x += d.dx;
+						d.y += d.dy;
+						d.dx += 0.05 * (Math.random() - .5) - 0.05 * d.dx - 0.001 * d.x;
+						d.dy += 0.05 * (Math.random() - .5) - 0.05 * d.dy - 0.001 * d.y;
+
+						var color = 'black';
+						var i = 4*(Math.round(yScale(d.y))*width + Math.round(xScale(d.x)));
+						if (null != imageData[i]) {
+							color = 'rgb(' + imageData[i] + ',' + imageData[i+1] + ',' + imageData[i+2] + ')';
+						}
+
+						context.fillStyle = color;
+						context.beginPath();
+						context.arc(xScale(d.x), yScale(d.y), Math.min(1 + 2000 * Math.abs(d.dx * d.dy), 20), 0, angle);
+						context.fill();
+						context.stroke();
+					});
+
+					time1 = Date.now();
+					fps.text(Math.round(1000 / (time1 - time0)));
+					time0 = time1;
+
+					return stop;
+				});
+			}
+
+			function toggle() {
+				if(!stop) {
+					stop = true;
+				}
+				else {
+					stop = false;
+					start();
+				}
+			}
+
+		</script>
+	</body>
+</html>
