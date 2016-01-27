@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+		<title>Visualizing Data</title>
+		<link rel="stylesheet" href="../lib/bootstrap/dist/css/bootstrap.min.css">
+
+		<style type="text/css">
+
+			h1 {
+				font-size: 55px;
+				margin-top: 60px;
+				margin-bottom: 80px;
+			}
+
+			.bar {
+				overflow: visible;
+				white-space: nowrap;
+				background-color: #ddd;
+				font: 34px sans-serif;
+				color: #444;
+				margin: 16px;
+				padding: 8px 12px;
+			}
+			.bar:hover {
+				background-color: steelblue;
+				color: #eee;
+			}
+		</style>
+
+	</head>
+	<body>
+
+		<div class="container">
+
+			<div class="row">
+				<div style="text-align:center;">
+					<h1>So... Why, Then?</h1>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-5 col-md-offset-4">
+					<div id="content"></div>
+				</div>
+			</div>
+
+<!-- 
+			<div class="row" style="margin-top:60px;">
+				<div class="col-md-8 col-md-offset-2">
+					<pre>
+
+	var reasons = [ 'To Explain', 'To Develop Trust', 'To Leave an Impression' ];
+	var bars = d3.select('#content').selectAll('div').data(reasons);
+	bars.enter().append('div')
+		.attr('class', 'bar')
+		.style('width', 0)
+		.text(function(d) { return d; })
+		.transition().delay(function(d, i) { return i*1000; }).duration(1000)
+			.style('width', function(d) { return d.length * 20 + 'px' });
+					</pre>
+				</div>
+			</div>
+-->
+
+		</div>
+
+		<script src="../lib/d3/d3.min.js"></script>
+		<script>
+			var reasons = [ 'To Explain', 'To Develop Trust', 'To Leave an Impression' ];
+			var bars = d3.select('#content').selectAll('div').data(reasons);
+			bars.enter().append('div')
+				.attr('class', 'bar')
+				.style('width', 0)
+				.text(function(d) { return d; })
+				.transition().delay(function(d, i) { return i*1000; }).duration(1000)
+					.style('width', function(d) { return d.length * 20 + 'px' });
+
+		</script>
+	</body>
+</html>
